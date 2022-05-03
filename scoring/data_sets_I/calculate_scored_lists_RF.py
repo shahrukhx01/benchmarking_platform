@@ -9,8 +9,8 @@
 # optional:
 # -o [] : relative output path (default: pwd)
 # -a : append to the output file (default: overwrite)
-# -s [] : similarity metric (default: Dice, 
-#         other options: Tanimoto, Cosine, Russel, Kulczynski, 
+# -s [] : similarity metric (default: Dice,
+#         other options: Tanimoto, Cosine, Russel, Kulczynski,
 #         McConnaughey, Manhattan, RogotGoldberg)
 # -r [] : file containing the random forest info
 #          default parameters: criterion=gini, max_depth=10,
@@ -24,19 +24,19 @@
 #
 #  Copyright (c) 2013, Novartis Institutes for BioMedical Research Inc.
 #  All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
-# met: 
+# met:
 #
-#     * Redistributions of source code must retain the above copyright 
+#     * Redistributions of source code must retain the above copyright
 #       notice, this list of conditions and the following disclaimer.
 #     * Redistributions in binary form must reproduce the above
-#       copyright notice, this list of conditions and the following 
-#       disclaimer in the documentation and/or other materials provided 
+#       copyright notice, this list of conditions and the following
+#       disclaimer in the documentation and/or other materials provided
 #       with the distribution.
-#     * Neither the name of Novartis Institutes for BioMedical Research Inc. 
-#       nor the names of its contributors may be used to endorse or promote 
+#     * Neither the name of Novartis Institutes for BioMedical Research Inc.
+#       nor the names of its contributors may be used to endorse or promote
 #       products derived from this software without specific prior written permission.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -53,20 +53,23 @@
 #
 
 from rdkit import Chem, DataStructs
-import cPickle, gzip, sys, os, os.path, numpy
+
+import gzip, sys, os, os.path, numpy
+import _pickle as cPickle
 from collections import defaultdict
-from optparse import OptionParser 
+from optparse import OptionParser
 from sklearn.ensemble import RandomForestClassifier, forest
 from sklearn.tree import tree
 from rdkit.ML.Data import DataUtils
 from multiprocessing import Pool
+import pickle as pkl
 
 # import configuration file with global variables
-sys.path.insert(0, os.getcwd()+'/../../')
+sys.path.insert(0, os.getcwd() + "/../../")
 import configuration_file_I as conf
 
 # import functions for scoring step
-sys.path.insert(0, os.getcwd()+'/../')
+sys.path.insert(0, os.getcwd() + "/../")
 import scoring_functions as scor
 
 # import ML functions
@@ -74,83 +77,141 @@ import ml_functions_13 as ml_func
 
 # paths
 cwd = os.getcwd()
-parentpath = cwd+'/../../'
-inpath_cmp = parentpath+'compounds/'
-inpath_list = parentpath+'query_lists/data_sets_I/'
-path = cwd+'/'
+parentpath = cwd + "/../../"
+inpath_cmp = parentpath + "compounds/"
+inpath_list = parentpath + "query_lists/data_sets_I/"
+path = cwd + "/"
 
 # flag to read in ChEMBL decoys only once
 firstchembl = True
 
 # dictionary for readMLFile()
 read_dict = {}
-read_dict['criterion'] = lambda x: x
-read_dict['max_depth'] = lambda x: int(x)
-read_dict['max_features'] = lambda x: x
-read_dict['num_estimators'] = lambda x: int(x)
-read_dict['min_samples_split'] = lambda x: int(x)
-read_dict['min_samples_leaf'] = lambda x: int(x)
-read_dict['n_jobs'] = lambda x: int(x)
+read_dict["criterion"] = lambda x: x
+read_dict["max_depth"] = lambda x: int(x)
+read_dict["max_features"] = lambda x: x
+read_dict["num_estimators"] = lambda x: int(x)
+read_dict["min_samples_split"] = lambda x: int(x)
+read_dict["min_samples_leaf"] = lambda x: int(x)
+read_dict["n_jobs"] = lambda x: int(x)
 
 forest._parallel_build_trees = ml_func._balanced_parallel_build_trees
 
 # prepare command-line option parser
 usage = "usage: %prog [options] arg"
 parser = OptionParser(usage)
-parser.add_option("-n", "--num", dest="num", type="int", metavar="INT", help="number of query mols")
-parser.add_option("-f", "--fingerprint", dest="fp", help="fingerprint to train random forest with")
-parser.add_option("-o", "--outpath", dest="outpath", metavar="PATH", help="relative output PATH (default: pwd)")
-parser.add_option("-s", "--similarity", dest="simil", type="string", metavar="NAME", help="NAME of similarity metric to use (default: Dice, other options are: Tanimoto, Cosine, Russel, Kulczynski, McConnaughey, Manhattan, RogotGoldberg")
-parser.add_option("-m", "--ml", dest="ml", metavar="FILE", help="file containing the random forest info (default parameters: criterion=gini, max_depth=10, max_features=auto (=sqrt), num_estimators=100, min_samples_split=2, min_samples_leaf=1, n_jobs=1)")
-parser.add_option("-a", "--append", dest="do_append", action="store_true", help="append to the output file (default: False)")
+parser.add_option(
+    "-n", "--num", dest="num", type="int", metavar="INT", help="number of query mols"
+)
+parser.add_option(
+    "-f", "--fingerprint", dest="fp", help="fingerprint to train random forest with"
+)
+parser.add_option(
+    "-o",
+    "--outpath",
+    dest="outpath",
+    metavar="PATH",
+    help="relative output PATH (default: pwd)",
+)
+parser.add_option(
+    "-s",
+    "--similarity",
+    dest="simil",
+    type="string",
+    metavar="NAME",
+    help="NAME of similarity metric to use (default: Dice, other options are: Tanimoto, Cosine, Russel, Kulczynski, McConnaughey, Manhattan, RogotGoldberg",
+)
+parser.add_option(
+    "-m",
+    "--ml",
+    dest="ml",
+    metavar="FILE",
+    help="file containing the random forest info (default parameters: criterion=gini, max_depth=10, max_features=auto (=sqrt), num_estimators=100, min_samples_split=2, min_samples_leaf=1, n_jobs=1)",
+)
+parser.add_option(
+    "-a",
+    "--append",
+    dest="do_append",
+    action="store_true",
+    help="append to the output file (default: False)",
+)
 
 ############# MAIN PART ########################
-if __name__=='__main__':
-
+if __name__ == "__main__":
     # read in command line options
     (options, args) = parser.parse_args()
     # required arguments
-    if options.num and options.fp: 
+    if options.num and options.fp:
         num_query_mols = options.num
         fp_build = options.fp
     else:
-        raise RuntimeError('one or more of the required options was not given!')
+        raise RuntimeError("one or more of the required options was not given!")
 
     # optional arguments
     do_append = False
-    if options.do_append: do_append = options.do_append
-    simil_metric = 'Dice'
-    if options.simil: simil_metric = options.simil
+    if options.do_append:
+        do_append = options.do_append
+    simil_metric = "Dice"
+    if options.simil:
+        simil_metric = options.simil
     outpath = path
     outpath_set = False
     if options.outpath:
         outpath_set = True
-        outpath = path+options.outpath
+        outpath = path + options.outpath
 
     # check for sensible input
-    if outpath_set: scor.checkPath(outpath, 'output')
+    if outpath_set:
+        scor.checkPath(outpath, "output")
     scor.checkSimil(simil_metric)
     scor.checkQueryMols(num_query_mols, conf.list_num_query_mols)
 
     # default machine-learning method variables
-    ml_dict = dict(criterion='gini', max_features='auto', n_jobs=1, max_depth=10, min_samples_split=2, min_samples_leaf=1, num_estimators=100)
+    ml_dict = dict(
+        criterion="gini",
+        max_features="auto",
+        n_jobs=1,
+        max_depth=10,
+        min_samples_split=2,
+        min_samples_leaf=1,
+        num_estimators=100,
+    )
     if options.ml:
-        ml_dict = ml_func.readMLFile(ml_dict, read_dict, path+options.ml)
+        ml_dict = ml_func.readMLFile(ml_dict, read_dict, path + options.ml)
 
     # initialize machine-learning method
-    ml = RandomForestClassifier(criterion=ml_dict['criterion'], max_features=ml_dict['max_features'], min_samples_split=ml_dict['min_samples_split'], max_depth=ml_dict['max_depth'], min_samples_leaf=ml_dict['min_samples_leaf'], n_estimators=ml_dict['num_estimators'], n_jobs=ml_dict['n_jobs'])
+    ml = RandomForestClassifier(
+        criterion=ml_dict["criterion"],
+        max_features=ml_dict["max_features"],
+        min_samples_split=ml_dict["min_samples_split"],
+        max_depth=ml_dict["max_depth"],
+        min_samples_leaf=ml_dict["min_samples_leaf"],
+        n_estimators=ml_dict["num_estimators"],
+        n_jobs=ml_dict["n_jobs"],
+    )
 
     # loop over data-set sources
     for dataset in conf.set_data.keys():
-        print dataset
+        print(dataset)
         # loop over targets
-        for target in conf.set_data[dataset]['ids']:
-            print target
+        for target in conf.set_data[dataset]["ids"]:
+            # print(target)
 
             # read in actives and calculate fps
             actives = []
-            for line in gzip.open(inpath_cmp+dataset+'/cmp_list_'+dataset+'_'+str(target)+'_actives.dat.gz', 'r'):
-                if line[0] != '#': 
+            for line in gzip.open(
+                inpath_cmp
+                + dataset
+                + "/cmp_list_"
+                + dataset
+                + "_"
+                + str(target)
+                + "_actives.dat.gz",
+                "r" + "t",
+            ):
+                # print(dataset, line[0], line)
+                if line[0] != "#" and line[2] != "ID":
+                    # print(line.rstrip().split()[2])
                     # structure of line: [external ID, internal ID, SMILES]]
                     line = line.rstrip().split()
                     fp_dict = scor.getFP(fp_build, line[2])
@@ -162,11 +223,19 @@ if __name__=='__main__':
             np_fps_act = ml_func.getNumpy(actives)
 
             # read in decoys and calculate fps
-            if dataset == 'ChEMBL':
+            if dataset == "ChEMBL":
                 if firstchembl:
                     decoys = []
-                    for line in gzip.open(inpath_cmp+dataset+'/cmp_list_'+dataset+'_zinc_decoys.dat.gz', 'r'):
-                        if line[0] != '#': 
+                    for line in gzip.open(
+                        inpath_cmp
+                        + dataset
+                        + "/cmp_list_"
+                        + dataset
+                        + "_zinc_decoys.dat.gz",
+                        "r" + "t",
+                    ):
+                        if line[0] != "#":
+
                             # structure of line: [external ID, internal ID, SMILES]]
                             line = line.rstrip().split()
                             fp_dict = scor.getFP(fp_build, line[2])
@@ -177,8 +246,17 @@ if __name__=='__main__':
                     firstchembl = False
             else:
                 decoys = []
-                for line in gzip.open(inpath_cmp+dataset+'/cmp_list_'+dataset+'_'+str(target)+'_decoys.dat.gz', 'r'):
-                    if line[0] != '#': 
+                for line in gzip.open(
+                    inpath_cmp
+                    + dataset
+                    + "/cmp_list_"
+                    + dataset
+                    + "_"
+                    + str(target)
+                    + "_decoys.dat.gz",
+                    "r" + "t",
+                ):
+                    if line[0] != "#":
                         # structure of line: [external ID, internal ID, SMILES]]
                         line = line.rstrip().split()
                         fp_dict = scor.getFP(fp_build, line[2])
@@ -187,22 +265,45 @@ if __name__=='__main__':
                 # convert fps to numpy arrays
                 np_fps_dcy = ml_func.getNumpy(decoys)
             num_decoys = len(decoys)
-            print "molecules read in and fingerprints calculated"
+            print("molecules read in and fingerprints calculated")
 
             # open training lists
-            training_input = open(inpath_list+dataset+'/training_'+dataset+'_'+str(target)+'_'+str(num_query_mols)+'.pkl', 'r')
+            training_input = open(
+                inpath_list
+                + dataset
+                + "/training_"
+                + dataset
+                + "_"
+                + str(target)
+                + "_"
+                + str(num_query_mols)
+                + ".pkl",
+                "rb",
+            )
             # to store the scored lists
             scores = defaultdict(list)
 
             # loop over repetitions
             for q in range(conf.num_reps):
-                print q
-                training_list = cPickle.load(training_input)
-                test_list = [i for i in range(num_actives) if i not in training_list[:num_query_mols]]
-                test_list += [i for i in range(num_decoys) if i not in training_list[num_query_mols:]]
+                print(q)
+                # with open(training_input, "r") as f:
+                training_list = pkl.load(training_input)
+                # training_list = cPickle.load(training_input)
+                test_list = [
+                    i
+                    for i in range(num_actives)
+                    if i not in training_list[:num_query_mols]
+                ]
+                test_list += [
+                    i
+                    for i in range(num_decoys)
+                    if i not in training_list[num_query_mols:]
+                ]
 
                 # list with active/inactive info
-                ys_fit = [1]*num_query_mols + [0]*(len(training_list)-num_query_mols)
+                ys_fit = [1] * num_query_mols + [0] * (
+                    len(training_list) - num_query_mols
+                )
                 # training fps
                 train_fps = [actives[i][1] for i in training_list[:num_query_mols]]
                 np_train_fps = [np_fps_act[i] for i in training_list[:num_query_mols]]
@@ -228,16 +329,23 @@ if __name__=='__main__':
                 # rank based on probability (and second based on similarity)
                 single_score = ml.predict_proba(np_test_fps)
                 # store: [probability, similarity, internal ID, active/inactive]
-                single_score = [[m[1], s, t[0], t[1]] for m,s,t in zip(single_score,std_simil,test_mols)]
+                single_score = [
+                    [m[1], s, t[0], t[1]]
+                    for m, s, t in zip(single_score, std_simil, test_mols)
+                ]
                 single_score.sort(reverse=True)
-                scores['rf_'+fp_build].append(single_score)
+                scores["rf_" + fp_build].append(single_score)
 
             # write scores to file
             if do_append:
-                outfile = gzip.open(outpath+'/list_'+dataset+'_'+str(target)+'.pkl.gz', 'ab+') # binary format
+                outfile = gzip.open(
+                    outpath + "/list_" + dataset + "_" + str(target) + ".pkl.gz", "ab+"
+                )  # binary format
             else:
-                outfile = gzip.open(outpath+'/list_'+dataset+'_'+str(target)+'.pkl.gz', 'wb+') # binary format
-            for fp in ['rf_'+fp_build]:
+                outfile = gzip.open(
+                    outpath + "/list_" + dataset + "_" + str(target) + ".pkl.gz", "wb+"
+                )  # binary format
+            for fp in ["rf_" + fp_build]:
                 cPickle.dump([fp, scores[fp]], outfile, 2)
             outfile.close()
-            print "scoring done and scored lists written"
+            print("scoring done and scored lists written")
