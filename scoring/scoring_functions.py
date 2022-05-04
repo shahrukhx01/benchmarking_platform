@@ -127,7 +127,7 @@ simil_dict["RogotGoldberg"] = lambda x, y: sorted(
     DataStructs.BulkRogotGoldbergSimilarity(x, y), reverse=True
 )
 simil_dict["EmbedCosine"] = lambda x, y: sorted(
-    util.cos_sim(x, y).cpu().detach().numpy()
+    util.cos_sim(x, y).cpu().detach().tolist()
 )
 
 
