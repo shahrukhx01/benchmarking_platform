@@ -1,3 +1,4 @@
 rdkit-pypi==2022.3.1
 farm==0.8.0
 sklearn==0.0
+sentence-transformers==1.0.4
