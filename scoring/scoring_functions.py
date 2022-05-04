@@ -126,7 +126,9 @@ simil_dict["Manhattan"] = lambda x, y: sorted(
 simil_dict["RogotGoldberg"] = lambda x, y: sorted(
     DataStructs.BulkRogotGoldbergSimilarity(x, y), reverse=True
 )
-simil_dict["EmbedCosine"] = lambda x, y: sorted(util.cos_sim(x, y))
+simil_dict["EmbedCosine"] = lambda x, y: sorted(
+    util.cos_sim(x, y).cpu().detach().numpy()
+)
 
 
 def getBulkSimilarity(fp, fp_list, simil):
