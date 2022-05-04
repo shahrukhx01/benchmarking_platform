@@ -329,7 +329,7 @@ if __name__ == "__main__":
                 std_simil = []
                 for fp in test_fps:
                     tmp_simil = scor.getBulkSimilarity(fp, train_fps, simil_metric)
-                    print(fp)
+                    # print(fp)
                     tmp_simil.sort(reverse=True)
                     std_simil.append(tmp_simil[0])
 
