@@ -74,6 +74,7 @@ def checkSimil(simil):
         "McConnaughey",
         "Manhattan",
         "RogotGoldberg",
+        "EmbedCosine",
     ]
     if simil not in simil_list:
         raise ValueError("provided similarity metric not supported:", simil)
