@@ -36,6 +36,7 @@
 
 import os, sys, operator
 from rdkit import DataStructs
+from sentence_transformers import util
 
 # import the fingerprint library
 import fingerprint_lib
@@ -124,6 +125,7 @@ simil_dict["Manhattan"] = lambda x, y: sorted(
 simil_dict["RogotGoldberg"] = lambda x, y: sorted(
     DataStructs.BulkRogotGoldbergSimilarity(x, y), reverse=True
 )
+simil_dict["EmbedCosine"] = lambda x, y: sorted(util.cos_sim(x, y))
 
 
 def getBulkSimilarity(fp, fp_list, simil):

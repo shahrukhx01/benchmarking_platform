@@ -58,8 +58,9 @@ import gzip, sys, os, os.path, numpy
 import _pickle as cPickle
 from collections import defaultdict
 from optparse import OptionParser
-from sklearn.ensemble import RandomForestClassifier, forest
-from sklearn.tree import tree
+from sklearn.ensemble import RandomForestClassifier  # , forest
+
+# from sklearn.tree import tree
 from rdkit.ML.Data import DataUtils
 from multiprocessing import Pool
 from bert_encoder import TransformerDEModel
@@ -96,7 +97,7 @@ read_dict["min_samples_split"] = lambda x: int(x)
 read_dict["min_samples_leaf"] = lambda x: int(x)
 read_dict["n_jobs"] = lambda x: int(x)
 
-forest._parallel_build_trees = ml_func._balanced_parallel_build_trees
+# forest._parallel_build_trees = ml_func._balanced_parallel_build_trees
 
 # prepare command-line option parser
 usage = "usage: %prog [options] arg"
