@@ -93,9 +93,9 @@ def getFPDict(fp_names, smiles):
     return fp_dict
 
 
-def getFP(fp_name, smiles):
+def getFP(fp_name, smiles, model=None):
     """Gets fingerprint from fingerprint library"""
-    return fingerprint_lib.CalculateFP(fp_name, smiles)
+    return fingerprint_lib.CalculateFP(fp_name, smiles, model)
 
 
 # dictionary for similarity measures
