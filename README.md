@@ -21,7 +21,7 @@ python calculate_scored_lists_BERT.py -n 5 -f bert -s EmbedCosine
 ```
 2) Validation
 ```
-python calculate_validation_methods.py -m methods.txt -i fingerprints
+python calculate_validation_methods.py -m methods.txt -i fingerprints  -o validation_results/
 ```
 3) Analysis
 
