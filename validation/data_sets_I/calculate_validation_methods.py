@@ -50,8 +50,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
-
-import gzip, cPickle, math, sys, os, os.path
+import _pickle as cPickle
+import gzip, math, sys, os, os.path
 from collections import defaultdict
 from optparse import OptionParser
 from rdkit.ML.Scoring import Scoring
@@ -153,7 +153,7 @@ if __name__ == "__main__":
             scores = {}
             for inp in inpath:  # loop over input paths
                 myfile = gzip.open(
-                    inp + "/list_" + dataset + "_" + str(target) + "_.pkl.gz", "r"
+                    inp + "/list_" + dataset + "_" + str(target) + ".pkl.gz", "r"
                 )
                 while 1:
                     try:
