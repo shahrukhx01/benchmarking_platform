@@ -17,7 +17,7 @@ platform is divided into three steps:
 
 1) Scoring
 ```bash
-python calculate_scored_lists_BERT.py -n 5 -f bert -s EmbedCosine
+python calculate_scored_lists_BERT_.py -n 5 -f bert.txt -s EmbedCosine -o fingerprints
 ```
 2) Validation
 ```bash
