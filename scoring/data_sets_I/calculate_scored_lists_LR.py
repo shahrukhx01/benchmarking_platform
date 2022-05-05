@@ -53,7 +53,8 @@
 #
 
 from rdkit import Chem, DataStructs
-import cPickle, gzip, sys, os, os.path, numpy
+import _pickle as cPickle
+import  gzip, sys, os, os.path, numpy
 from collections import defaultdict
 from optparse import OptionParser 
 from sklearn.linear_model import LogisticRegression

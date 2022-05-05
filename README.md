@@ -16,14 +16,17 @@ The virtual-screening process implemented by the benchmarking
 platform is divided into three steps:
 
 1) Scoring
-```
+```bash
 python calculate_scored_lists_BERT.py -n 5 -f bert -s EmbedCosine
 ```
 2) Validation
-```
+```bash
 python calculate_validation_methods.py -m methods.txt -i fingerprints  -o validation_results/
 ```
 3) Analysis
+```bash
+python run_analysis.py -i validation_results -o analysis_output/
+```
 
 The three steps are run separately and read in the output of the
 previous step. In the scoring step, the data from the directories
