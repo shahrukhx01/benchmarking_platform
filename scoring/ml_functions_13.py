@@ -37,9 +37,9 @@ from rdkit import Chem, DataStructs
 from rdkit.ML.Data import DataUtils
 import numpy
 from multiprocessing import Pool
-from sklearn.ensemble import RandomForestClassifier  # , forest
+from sklearn.ensemble import RandomForestClassifier, forest
 
-# from sklearn.tree import tree
+from sklearn.tree import tree
 from sklearn.naive_bayes import BernoulliNB
 
 ### FOR SKLEARN VERSION 0.13 ###
