@@ -86,12 +86,12 @@ def checkQueryMols(num, list_num_query_mols):
         raise ValueError("provided number of query molecules not supported:", num)
 
 
-def getFPDict(fp_names, smiles):
+def getFPDict(fp_names, smiles, model):
     """Gets the fingerprints from the fingerprint library
     and stores them in a dictioanry"""
     fp_dict = {}
     for fp in fp_names:
-        fp_dict[fp] = fingerprint_lib.CalculateFP(fp, smiles)
+        fp_dict[fp] = fingerprint_lib.CalculateFP(fp, smiles, model)
     return fp_dict
 
 
