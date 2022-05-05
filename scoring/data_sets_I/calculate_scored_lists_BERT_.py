@@ -53,6 +53,8 @@ import _pickle as cPickle
 import gzip, sys, os, os.path
 from collections import defaultdict
 from optparse import OptionParser
+from bert_encoder import TransformerDEModel
+import pickle as pkl
 
 # import configuration file with global variables
 sys.path.insert(0, os.getcwd() + "/../../")
@@ -141,7 +143,7 @@ if __name__ == "__main__":
         scor.checkPath(outpath, "output")
     scor.checkSimil(simil_metric)
     scor.checkQueryMols(num_query_mols, conf.list_num_query_mols)
-
+    model = TransformerDEModel(model_path="seyonec/ChemBERTa-zinc-base-v1")
     # loop over data-set sources
     for dataset in conf.set_data.keys():
         print(dataset)
@@ -164,7 +166,7 @@ if __name__ == "__main__":
                 if line[0] != "#":
                     # structure of line: [external ID, internal ID, SMILES]]
                     line = line.rstrip().split()
-                    fp_dict = scor.getFPDict(fp_names, line[2])
+                    fp_dict = scor.getFPDict(fp_names, line[2], model)
                     # store: [internal ID, dict with fps]
                     actives.append([line[1], fp_dict])
             num_actives = len(actives)
@@ -185,7 +187,7 @@ if __name__ == "__main__":
                         if line[0] != "#":
                             # structure of line: [external ID, internal ID, SMILES]]
                             line = line.rstrip().split()
-                            fp_dict = scor.getFPDict(fp_names, line[2])
+                            fp_dict = scor.getFPDict(fp_names, line[2], model)
                             # store: [internal ID, dict with fps]
                             decoys.append([line[1], fp_dict])
                     firstchembl = False
@@ -204,7 +206,7 @@ if __name__ == "__main__":
                     if line[0] != "#":
                         # structure of line: [external ID, internal ID, SMILES]]
                         line = line.rstrip().split()
-                        fp_dict = scor.getFPDict(fp_names, line[2])
+                        fp_dict = scor.getFPDict(fp_names, line[2], model)
                         # store: [internal ID, dict with fps]
                         decoys.append([line[1], fp_dict])
             num_decoys = len(decoys)
