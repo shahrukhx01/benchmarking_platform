@@ -19,6 +19,10 @@ platform is divided into three steps:
 ```bash
 python calculate_scored_lists_BERT_.py -n 5 -f bert.txt -s EmbedCosine -o fingerprints
 ```
+Or for Siamese BERT
+```bash
+calculate_scored_lists_SBERT.py -n 5 -f bert.txt -s EmbedCosine -o fingerprints
+```
 2) Validation
 ```bash
 python calculate_validation_methods.py -m methods.txt -i fingerprints  -o validation_results/
