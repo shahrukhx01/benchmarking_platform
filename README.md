@@ -21,7 +21,7 @@ python calculate_scored_lists_BERT_.py -n 5 -f bert.txt -s EmbedCosine -o finger
 ```
 Or for Siamese BERT
 ```bash
-calculate_scored_lists_SBERT.py -n 5 -f bert.txt -s EmbedCosine -o fingerprints
+python calculate_scored_lists_SBERT.py -n 5 -f bert.txt -s EmbedCosine -o fingerprints
 ```
 2) Validation
 ```bash
