@@ -47,14 +47,23 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+
+# export PATH="/Users/shahrukh/Desktop/Thesis_DD/drug-discovery-gnn-lm/simobert:$PATH"
+from os import path
+import sys
+
+sys.path.append(
+    path.abspath("/Users/shahrukh/Desktop/Thesis_DD/drug-discovery-gnn-lm/")
+)
 import __future__
-from rdkit import Chem, DataStructs
+
+# from rdkit import Chem, DataStructs
 import _pickle as cPickle
 import gzip, sys, os, os.path
 from collections import defaultdict
 from optparse import OptionParser
-from bert_encoder import TransformerDEModel
 import pickle as pkl
+from simobert.utils.featurizer.simobert_featurizer import SimobertFeaturizer
 
 # import configuration file with global variables
 sys.path.insert(0, os.getcwd() + "/../../")
@@ -143,7 +152,9 @@ if __name__ == "__main__":
         scor.checkPath(outpath, "output")
     scor.checkSimil(simil_metric)
     scor.checkQueryMols(num_query_mols, conf.list_num_query_mols)
-    model = TransformerDEModel(model_path="shahrukhx01/smole-bert")
+    path_to_checkpoint = "/Users/shahrukh/Desktop/Thesis_DD/pretrained/bert_mlm_3million/bert_mlm_3million.ckpt"
+    model = SimobertFeaturizer(path_to_checkpoint)
+
     # loop over data-set sources
     for dataset in conf.set_data.keys():
         print(dataset)

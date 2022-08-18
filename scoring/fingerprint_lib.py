@@ -87,7 +87,11 @@ fpdict["sbert"] = lambda m: Chem.RDKFingerprint(
 
 
 def CalculateFP(fp_name, smiles, model=None):
-    if fp_name == "bert":
+    if fp_name == "molbert":
+        features = model.encode([smiles])[0]
+        return features
+    elif fp_name == "bert":
+        print(smiles)
         return model.encode_corpus(smiles)[0]
     elif fp_name == "sbert":
         embeddings = model.encode(smiles)
